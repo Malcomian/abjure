@@ -242,19 +242,19 @@ function cleanup(source, target) {
         console.log(`...deleting file ${unlink.replace(project_source, '')}`)
         try {
           fs.unlinkSync(unlink)
+          deleted++
         } catch {
           console.log(`...couldn't remove ${unlink.replace(project_source, '')}`)
         }
-        deleted++
       }
       if (node.isDirectory()) {
         console.log(`...deleting folder ${unlink.replace(project_source, '')}`)
         try {
           fs.removeSync(unlink)
+          deleted++
         } catch {
           console.log(`...couldn't remove ${unlink.replace(project_source, '')}`)
         }
-        deleted++
       }
     }
   })
