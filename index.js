@@ -240,12 +240,20 @@ function cleanup(source, target) {
     if (!fs.existsSync(test)) {
       if (node.isFile()) {
         console.log(`...deleting file ${unlink.replace(project_source, '')}`)
-        fs.unlinkSync(unlink)
+        try {
+          fs.unlinkSync(unlink)
+        } catch {
+          console.log(`...couldn't remove ${unlink.replace(project_source, '')}`)
+        }
         deleted++
       }
       if (node.isDirectory()) {
         console.log(`...deleting folder ${unlink.replace(project_source, '')}`)
-        fs.removeSync(unlink)
+        try {
+          fs.removeSync(unlink)
+        } catch {
+          console.log(`...couldn't remove ${unlink.replace(project_source, '')}`)
+        }
         deleted++
       }
     }
