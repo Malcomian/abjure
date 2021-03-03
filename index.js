@@ -236,25 +236,17 @@ function cleanup(source, target) {
   let project_source = path.resolve('.')
   nodes.forEach((node) => {
     let unlink = node.path
-    let test = unlink.replace(target, source)
-    if (!fs.existsSync(test)) {
+    let original = unlink.replace(target, source)
+    if (!fs.existsSync(original) && fs.existsSync(unlink)) {
       if (node.isFile()) {
         console.log(`...deleting file ${unlink.replace(project_source, '')}`)
-        try {
-          fs.unlinkSync(unlink)
-          deleted++
-        } catch {
-          console.log(`...couldn't remove ${unlink.replace(project_source, '')}`)
-        }
+        fs.unlinkSync(unlink)
+        deleted++
       }
       if (node.isDirectory()) {
         console.log(`...deleting folder ${unlink.replace(project_source, '')}`)
-        try {
-          fs.removeSync(unlink)
-          deleted++
-        } catch {
-          console.log(`...couldn't remove ${unlink.replace(project_source, '')}`)
-        }
+        fs.removeSync(unlink)
+        deleted++
       }
     }
   })
