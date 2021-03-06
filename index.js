@@ -302,8 +302,8 @@ function get_nodes(dir) {
  * @param {String} plural postfix to return if number is equal to 1
  */
 function pluralize(list, singular, plural) {
-  if (list.length == 0 || list.length > 1) return plural
-  if (list.length == 1) return singular
+  if (list == 1) return `${singular}`
+  if (list == 0 || list > 1) return `${plural}`
 }
 
 /**
