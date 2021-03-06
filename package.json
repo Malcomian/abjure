@@ -1,6 +1,6 @@
 {
   "name": "abjure",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "A command line interface utility for transpiling javascript files with special comment sections that can add or remove sections of code.",
   "main": "index.js",
   "scripts": {
