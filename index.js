@@ -219,8 +219,8 @@ function build(source, target) {
       fs.ensureDirSync(destination)
     }
   })
-  console.log(`Edited ${edited} javascript files`)
-  console.log(`Copied ${copied} other files`)
+  console.log(`Edited ${edited} javascript file${pluralize(edited, '', 's')}`)
+  console.log(`Copied ${copied} other file${pluralize(copied, '', 's')}`)
   cleanup(source_directory, target_directory)
   end()
 }
@@ -250,7 +250,7 @@ function cleanup(source, target) {
       }
     }
   })
-  console.log(`Deleted ${deleted} items`)
+  console.log(`Deleted ${deleted} item${pluralize(deleted, '', 's')}`)
 }
 
 /**
@@ -293,6 +293,17 @@ function get_nodes(dir) {
     }
   })
   return nodes
+}
+
+/**
+ * Analyzes a number and returns either a singular or plural string
+ * @param {Number} list number to analyze
+ * @param {String} singular postfix to return if number is zero or greater than 1
+ * @param {String} plural postfix to return if number is equal to 1
+ */
+function pluralize(list, singular, plural) {
+  if (list.length == 0 || list.length > 1) return plural
+  if (list.length == 1) return singular
 }
 
 /**
