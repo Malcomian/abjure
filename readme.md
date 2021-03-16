@@ -87,6 +87,13 @@ console.log(/*+*/ 'this will be inserted at build!' /*.*/ /*-*/ /* 'this will be
 
 As a side note, I thought it'd be worthwhile to mention that - for convenience - these patterns are meant to be typed using only one hand on a number pad.
 
+## Examples
+
+Here are a couple of projects that I designed which make use of Abjure:
+
+* [Morphmaster](https://github.com/Malcomian/Morphmaster): An electron boilerplate application with CLI build utilities based off AngularJS and Bootstrap.
+* [Morphmaster-Web](https://github.com/Malcomian/Morphmaster-Web): A web application boilerplate with CLI build utilities based off AngularJS and Bootstrap.
+
 ## Known Issues
 
 One issue with the single line and inline methods is that they will usually behave poorly with anything but the default vscode code formatter for javascript files, as most code formatters will push code that appears after a block quote, which is anything starting with a `/*` and ending with a `*/`, to a new line.
