@@ -5,6 +5,8 @@ var start_time = start()
 const fs = require('fs-extra')
 const path = require('path')
 
+const _x_ = path.delimiter
+
 const Command = require('commander').Command
 const program = new Command()
 
@@ -174,7 +176,7 @@ class Scriptoid {
    * @param {String} source Full path to file
    */
   get_filename(source) {
-    return source.split('\\').pop()
+    return path.parse(source).name
   }
 }
 
@@ -285,11 +287,11 @@ function get_nodes(dir) {
   dirents.forEach((dirent) => {
     if (dirent.isDirectory()) {
       // handle folder
-      nodes.push(new Node(dirent.name, `${dir}\\${dirent.name}`, 'folder'))
-      nodes = nodes.concat(get_nodes(`${dir}\\${dirent.name}`))
+      nodes.push(new Node(dirent.name, `${dir}${_x_}${dirent.name}`, 'folder'))
+      nodes = nodes.concat(get_nodes(`${dir}${_x_}${dirent.name}`))
     } else if (dirent.isFile()) {
       // handle file
-      nodes.push(new Node(dirent.name, `${dir}\\${dirent.name}`, 'file'))
+      nodes.push(new Node(dirent.name, `${dir}${_x_}${dirent.name}`, 'file'))
     }
   })
   return nodes
