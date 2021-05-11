@@ -1,23 +1,28 @@
 {
   "name": "abjure",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "A command line interface utility for transpiling javascript files with special comment sections that can add or remove sections of code.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["js", "javascript", "transpile", "cli"],
+  "keywords": [
+    "js",
+    "javascript",
+    "transpile",
+    "cli"
+  ],
   "author": "Malcolm Wyatt-Mair",
   "repository": {
     "type": "git",
     "url": "https://github.com/Malcomian/abjure"
   },
   "license": "ISC",
-  "dependencies": {
-    "commander": "^7.1.0",
-    "fs-extra": "^9.1.0"
-  },
   "bin": {
     "abjure": "index.js"
+  },
+  "dependencies": {
+    "commander": "^7.2.0",
+    "fs-extra": "^10.0.0"
   }
 }
