@@ -5,8 +5,6 @@ var start_time = start()
 const fs = require('fs-extra')
 const path = require('path')
 
-const _x_ = path.delimiter
-
 const Command = require('commander').Command
 const program = new Command()
 
@@ -287,11 +285,11 @@ function get_nodes(dir) {
   dirents.forEach((dirent) => {
     if (dirent.isDirectory()) {
       // handle folder
-      nodes.push(new Node(dirent.name, `${dir}${_x_}${dirent.name}`, 'folder'))
-      nodes = nodes.concat(get_nodes(`${dir}${_x_}${dirent.name}`))
+      nodes.push(new Node(dirent.name, path.resolve(`${dir}/${dirent.name}`), 'folder'))
+      nodes = nodes.concat(get_nodes(path.resolve(`${dir}/${dirent.name}`)))
     } else if (dirent.isFile()) {
       // handle file
-      nodes.push(new Node(dirent.name, `${dir}${_x_}${dirent.name}`, 'file'))
+      nodes.push(new Node(dirent.name, path.resolve(`${dir}/${dirent.name}`), 'file'))
     }
   })
   return nodes
