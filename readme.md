@@ -4,7 +4,19 @@ This package is a command line interface utility that can transpile a source dir
 
 ## Setup
 
-This project can be installed globally as a CLI utility using `npm install -g abjure`. Alternatively, it can be installed locally, typically as a development dependency, with `npm install --save-dev abjure`. To invoke the locally installed version, use `npx abjure [...options]`, where `[...options]` would be replaced with some basic parameters.
+This project can be installed globally as a CLI utility using `npm install -g abjure`. Alternatively, it can be installed locally, typically as a development dependency, with `npm install --save-dev abjure`. To invoke the locally installed version, use `npx abjure [options] [command]`, where `[options]` and `[command]` would be replaced with some basic parameters.
+
+```text
+Options:
+  -V, --version            output the version number
+  -s, --skip               skip greeting
+  -l, --log                enable verbose logging
+  -h, --help               display help for command
+
+Commands:
+  build <source> <target>  build special comments from source directory to target directory
+  help [command]           display help for command
+```
 
 The easiest way to use this package is to register it as a build script in your `package.json` file. For example, if you want to target a `src` folder and transpile it to a `build` folder, use the following script:
 
@@ -17,6 +29,8 @@ The easiest way to use this package is to register it as a build script in your 
 ```
 
 Then, running `npm run build` will transpile everything in the `src` folder into the `build` folder in the root of your project.
+
+The "--skip" flag will skip the large logo and version/website logging. The "--log" flag will enable verbose logging - any file or folder that is copied, edited, or deleted will be logged.
 
 Using a file watching script in conjunction with this project is highly recommended. The idea is that whenever a file is changed, added, or deleted within your main source folder, your project should rebuild automatically. Here's an example using [Chokidar-CLI](https://www.npmjs.com/package/chokidar-cli):
 
@@ -96,4 +110,4 @@ Here are a couple of projects that I designed which make use of Abjure:
 
 ## Known Issues
 
-One issue with the single line and inline methods is that they will usually behave poorly with anything but the default vscode code formatter for javascript files, as most code formatters will push code that appears after a block quote, which is anything starting with a `/*` and ending with a `*/`, to a new line.
+One issue with the single line and inline methods is that they will usually behave poorly with anything but the default vscode code formatter for javascript files, as most code formatters will push code that appears after a block quote, which is anything starting with `/*` and ending with `*/`, to a new line.
