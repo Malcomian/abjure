@@ -13,8 +13,10 @@ const program = new Command()
 var log = false
 var skip = false
 
+var made = 0
 var edited = 0
 var copied = 0
+var deleted = 0
 
 class Node {
   /**
@@ -237,10 +239,12 @@ function build(source, target) {
       mkdirsSync(destination)
     }
   })
-  console.log('=================================================')
-  console.log(`Edited ${chalk.yellowBright(edited)} javascript file${pluralize(edited, '', 's')}`)
-  console.log(`Copied ${chalk.greenBright(copied)} other file${pluralize(copied, '', 's')}`)
   cleanup(source_directory, target_directory)
+  console.log('=================================================')
+  console.log(`${chalk.cyanBright(made)} director${pluralize(made, 'y', 'ies')} made`)
+  console.log(`${chalk.yellowBright(edited)} javascript file${pluralize(edited, '', 's')} edited`)
+  console.log(`${chalk.greenBright(copied)} other file${pluralize(copied, '', 's')} copied`)
+  console.log(`${chalk.redBright(deleted)} item${pluralize(deleted, '', 's')} deleted`)
   console.log('=================================================')
   end()
 }
@@ -251,7 +255,6 @@ function build(source, target) {
  * @param {String} target full target folder path
  */
 function cleanup(source, target) {
-  var deleted = 0
   const nodes = get_nodes(target)
   let project_source = path.resolve('.')
   nodes.forEach((node) => {
@@ -270,7 +273,6 @@ function cleanup(source, target) {
       }
     }
   })
-  console.log(`Deleted ${chalk.redBright(deleted)} item${pluralize(deleted, '', 's')}`)
 }
 
 /**
@@ -352,7 +354,14 @@ function outputFileSync(file, data) {
  * @param {string} dir path to create directories
  */
 function mkdirsSync(dir) {
-  fs.mkdirSync(dir, { recursive: true })
+  const dirs = fs.mkdirSync(dir, { recursive: true })
+  if (log == true && dirs !== undefined) {
+    folders = dirs.split('\n')
+    made += folders.length
+    folders.forEach(folder => {
+      console.log(`...made directory ${chalk.cyanBright(folder)}`)
+    })
+  }
 }
 
 /**
