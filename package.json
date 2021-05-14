@@ -1,6 +1,6 @@
 {
   "name": "abjure",
-  "version": "0.0.12",
+  "version": "0.1.0",
   "description": "A command line interface utility for transpiling javascript files with special comment sections that can add or remove sections of code.",
   "main": "index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "abjure": "index.js"
   },
   "dependencies": {
-    "commander": "^7.2.0",
-    "fs-extra": "^10.0.0"
+    "chalk": "^4.1.1",
+    "commander": "^7.2.0"
   }
 }
