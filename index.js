@@ -371,10 +371,10 @@ function pluralize(list, singular, plural) {
  */
 function greeting() {
   let a = function () {
-    return chalk.bgKeyword('grey')(' ')
+    return chalk.keyword('grey').bgKeyword('grey')('#')
   }
   let b = function () {
-    return chalk.bgKeyword('silver')(' ')
+    return chalk.keyword('silver').bgKeyword('silver')('|')
   }
   console.log(``)
   console.log(`  ${a()}${a()}${a()}${a()}${b()}  ${a()}${a()}${a()}${a()}${a()}${b()}  ${a()}${a()}${a()}${a()}${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${a()}${a()}${a()}${b()}  ${a()}${a()}${a()}${a()}${a()}${a()}${b()}`)
