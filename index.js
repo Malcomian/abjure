@@ -2,11 +2,16 @@
 
 var start_time = start()
 
-const fs = require('fs-extra')
+const chalk = require('chalk')
+
+const fs = require('fs')
 const path = require('path')
 
 const Command = require('commander').Command
 const program = new Command()
+
+var log = false
+var skip = false
 
 var edited = 0
 var copied = 0
@@ -67,29 +72,28 @@ class Scriptoid {
     this.multiline_ending = `/*...*/`
   }
   /**
-   * Evokes the file and saves it
+   * Abjures the file and saves it
    */
-  evoke() {
+  abjure() {
     this.contents = fs.readFileSync(this.source).toString()
     let data = this.process(this.contents)
-    // console.log(`Finished evoking file "${this.get_filename(this.source)}"!`)
     return this.save(data)
   }
   save(data) {
     if (!fs.existsSync(this.target)) {
-      fs.outputFileSync(this.target, data)
+      outputFileSync(this.target, data)
       edited++
+      if (log == true) console.log(`...copied nonexistant js file ${chalk.yellowBright(this.target)}`)
       return true
-    } else {
-      if (this.was_edited) {
-        if (fs.readFileSync(this.target).toString() == data) return true
-        fs.outputFileSync(this.target, data)
-        edited++
-        return true
-      } else {
-        return false
-      }
     }
+    if (this.was_edited) {
+      if (fs.readFileSync(this.target).toString() == data) return true
+      outputFileSync(this.target, data)
+      edited++
+      if (log == true) console.log(`...edited ${chalk.yellowBright(this.target)}`)
+      return true
+    }
+    return false
   }
   process(contents) {
     let file = []
@@ -178,10 +182,14 @@ class Scriptoid {
   }
 }
 
+const version = require('./package.json').version
+
 program.name('abjure')
-program.version(require('./package.json').version)
+program.version(version)
 
 program
+  .option('-s, --skip', 'skip greeting message')
+  .option('-l, --log', 'enable verbose logging')
   .command('build <source> <target>')
   .description('build special comments from source directory to target directory')
   .action((source, target) => build(source, target))
@@ -189,17 +197,27 @@ program
 program.parse(process.argv)
 
 /**
- * Build - evokes the source folder js files and copies any new files to target build folder
+ * Build - abjures the source folder js files and copies any new files to target build folder
  * @param {string} source relative source folder path
  * @param {string} target relative target folder path
  */
 function build(source, target) {
-  console.log(`${source} => ${target}`)
+  const opts = program.opts()
+
+  if (opts['log']) log = true // verbose logging
+  if (opts['skip']) skip = true // skip greeting
+
+  if (skip == false) greeting()
+
+  console.log('=================================================')
+  console.log('Building project...')
+  console.log(`${chalk.yellowBright(source)} ${chalk.redBright('=>')} ${chalk.yellowBright(target)}`)
 
   const source_directory = path.resolve(source)
   const target_directory = path.resolve(target)
 
-  fs.ensureDirSync(target_directory) // ensure root build folder path
+  mkdirsSync(source_directory) // ensure source folder path
+  mkdirsSync(target_directory) // ensure root build folder path
 
   const nodes = get_nodes(source_directory)
 
@@ -208,20 +226,22 @@ function build(source, target) {
     if (node.isFile()) {
       if (node.name.endsWith('.js')) {
         let js = new Scriptoid(node.path, destination)
-        // evoke will handle saving the file if it was edited and is different than the target
-        if (!js.evoke()) {
+        // abjure will handle saving the file if it was edited and is different than the target
+        if (!js.abjure()) {
           copy_if_newer_or_nonexistant(node.path, destination)
         }
       } else {
         copy_if_newer_or_nonexistant(node.path, destination)
       }
     } else if (node.isFolder()) {
-      fs.ensureDirSync(destination)
+      mkdirsSync(destination)
     }
   })
-  console.log(`Edited ${edited} javascript file${pluralize(edited, '', 's')}`)
-  console.log(`Copied ${copied} other file${pluralize(copied, '', 's')}`)
+  console.log('=================================================')
+  console.log(`Edited ${chalk.yellowBright(edited)} javascript file${pluralize(edited, '', 's')}`)
+  console.log(`Copied ${chalk.greenBright(copied)} other file${pluralize(copied, '', 's')}`)
   cleanup(source_directory, target_directory)
+  console.log('=================================================')
   end()
 }
 
@@ -239,18 +259,36 @@ function cleanup(source, target) {
     let original = unlink.replace(target, source)
     if (!fs.existsSync(original) && fs.existsSync(unlink)) {
       if (node.isFile()) {
-        console.log(`...deleting file ${unlink.replace(project_source, '')}`)
+        if (log == true) console.log(`...deleting file ${chalk.redBright(unlink.replace(project_source, ''))}`)
         fs.unlinkSync(unlink)
         deleted++
       }
       if (node.isDirectory()) {
-        console.log(`...deleting folder ${unlink.replace(project_source, '')}`)
-        fs.removeSync(unlink)
+        if (log == true) console.log(`...deleting folder ${chalk.redBright(unlink.replace(project_source, ''))}`)
+        removeSync(unlink)
         deleted++
       }
     }
   })
-  console.log(`Deleted ${deleted} item${pluralize(deleted, '', 's')}`)
+  console.log(`Deleted ${chalk.redBright(deleted)} item${pluralize(deleted, '', 's')}`)
+}
+
+/**
+ * Removes a directory and all its contents recursively
+ * @param {string} dir target directory
+ */
+function removeSync(dir) {
+  if (fs.existsSync(dir)) {
+    fs.readdirSync(dir).forEach((file, index) => {
+      const here = path.join(dir, file)
+      if (fs.lstatSync(here).isDirectory()) {
+        removeSync(here)
+      } else {
+        fs.unlinkSync(here)
+      }
+    })
+    fs.rmdirSync(dir)
+  }
 }
 
 /**
@@ -265,10 +303,12 @@ function copy_if_newer_or_nonexistant(source, target) {
     if (current != replace) {
       fs.copyFileSync(source, target)
       copied++
+      if (log == true) console.log(`...copied unequal file ${chalk.greenBright(target)}`)
     }
   } else {
     fs.copyFileSync(source, target)
     copied++
+    if (log == true) console.log(`...copied nonexistant file ${chalk.greenBright(target)}`)
   }
 }
 
@@ -296,6 +336,26 @@ function get_nodes(dir) {
 }
 
 /**
+ * Write a file, including all parent directories
+ * @param {string} file file
+ * @param {*} data data to write
+ */
+function outputFileSync(file, data) {
+  let dir = path.dirname(file)
+  if (fs.existsSync(dir)) return fs.writeFileSync(file, data)
+  mkdirsSync(dir)
+  return fs.writeFileSync(file, data)
+}
+
+/**
+ * Makes directories recursively
+ * @param {string} dir path to create directories
+ */
+function mkdirsSync(dir) {
+  fs.mkdirSync(dir, { recursive: true })
+}
+
+/**
  * Analyzes a number and returns either a singular or plural string
  * @param {Number} list number to analyze
  * @param {String} singular postfix to return if number is zero or greater than 1
@@ -307,19 +367,40 @@ function pluralize(list, singular, plural) {
 }
 
 /**
+ * Print greeting
+ */
+function greeting() {
+  let a = function () {
+    return chalk.bgKeyword('grey')(' ')
+  }
+  let b = function () {
+    return chalk.bgKeyword('silver')(' ')
+  }
+  console.log(``)
+  console.log(`  ${a()}${a()}${a()}${a()}${b()}  ${a()}${a()}${a()}${a()}${a()}${b()}  ${a()}${a()}${a()}${a()}${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${a()}${a()}${a()}${b()}  ${a()}${a()}${a()}${a()}${a()}${a()}${b()}`)
+  console.log(` ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()}     ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()}    `)
+  console.log(` ${a()}${a()}${a()}${a()}${a()}${a()}${b()} ${a()}${a()}${a()}${a()}${a()}${b()}      ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${a()}${a()}${a()}${b()}  ${a()}${a()}${a()}${a()}${b()}  `)
+  console.log(` ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${b()}    `)
+  console.log(` ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${a()}${a()}${a()}${b()}   ${a()}${a()}${a()}${a()}${b()}   ${a()}${a()}${a()}${a()}${b()}  ${a()}${a()}${b()} ${a()}${a()}${b()} ${a()}${a()}${a()}${a()}${a()}${a()}${b()}`)
+  console.log(``)
+
+  console.log(`Version ${chalk.yellowBright(version)}`)
+
+  console.log(`Website: ${chalk.yellowBright('https://github.com/Malcomian/Abjure')}`)
+}
+
+/**
  * Start - creates a start time
  */
 function start() {
-  console.log(`Building project...`)
-  let time = new Date().getTime()
-  return time
+  return Date.now()
 }
 
 /**
  * End - measure and print final elapsed time
  */
 function end() {
-  var end_time = new Date().getTime()
+  var end_time = Date.now()
   var elapsed = end_time - start_time
-  console.log(`Finished in ${elapsed}ms!`)
+  console.log(`Finished in ${chalk.cyanBright(elapsed)}ms!`)
 }
