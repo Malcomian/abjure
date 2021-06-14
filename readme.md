@@ -51,7 +51,7 @@ For inserting and removing multiple lines, start with `/*+++*/` for inserting co
 
 For inserting and removing single lines, start with `// /*++*/` for inserting code and `/*--*/` for removing code. These sections don't require any ending pattern.
 
-For inserting and removing inline code, start with `/*+*/ /*` for inserting code and `/*-*/` for removing code. End these sections with `/*.*/`. These patterns can be inserted anywhere in a line of code.
+For inserting and removing inline code, start with `/*+*/ /*` for inserting code and `/*-*/` for removing code. These patterns can be inserted anywhere in a line of code, and will change into `/*+*/` for insertion and `/*-*/ /*` for removal. Ending these parts of a line with `/*.*/` can help clean up lingering block quotes in both the source file or the transpiled result.
 
 **Example:** look at the following example source code:
 
