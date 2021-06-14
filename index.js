@@ -62,11 +62,8 @@ class Scriptoid {
     this.target = target
     this.contents = ''
     this.was_edited = false
-    this.inline_insert_regex = /(?<=\/\*\+\*\/)(.*?)(?=\/\*\.\*\/)/g
-    this.inline_remove_regex = /(?<=\/\*\-\*\/)(.*?)(?=\/\*\.\*\/)/g
     this.inline_insert_string = `/*+*/`
     this.inline_remove_string = `/*-*/`
-    this.inline_ending_string = `/*.*/`
     this.line_insert = `// /*++*/`
     this.line_remove = `/*--*/`
     this.multiline_insert = `/*+++*/`
@@ -105,7 +102,8 @@ class Scriptoid {
     for (let i = 0; i < file.length; i++) {
       const line = file[i];
       let spaces = this.leading(line)
-      let sentence = line.slice(spaces.length, line.length)
+      let sentence = ''
+      sentence = line.slice(spaces.length, line.length)
       // end multiline
       if (sentence.startsWith(this.multiline_ending)) {
         inserting = false
@@ -137,30 +135,18 @@ class Scriptoid {
         sentence = `// ${sentence}`
       }
       // inline insertion
-      if (this.inline_insert_regex.test(sentence)) {
-        var temp = sentence.split(this.inline_insert_regex)
-        for (let x = 0; x < temp.length; x++) {
-          const part = temp[x];
-          if (part.endsWith(this.inline_insert_string)) {
-            this.was_edited = true
-            temp[x + 1] = temp[x + 1].replace(' /*', '')
-            continue
-          }
-        }
-        sentence = temp.join('')
+      if (sentence.includes(this.inline_insert_string)) {
+        let temp = sentence.split(`${this.inline_insert_string} /*`)
+        temp = temp.join(this.inline_insert_string)
+        this.was_edited = true
+        sentence = temp
       }
       // inline removal
-      if (this.inline_remove_regex.test(sentence)) {
-        var temp = sentence.split(this.inline_remove_regex)
-        for (let x = 0; x < temp.length; x++) {
-          const part = temp[x];
-          if (part.endsWith(this.inline_remove_string)) {
-            this.was_edited = true
-            temp[x + 1] = ` /*${temp[x + 1]}`
-            continue
-          }
-        }
-        sentence = temp.join('')
+      if (sentence.includes(this.inline_remove_string)) {
+        let temp = sentence.split(`${this.inline_remove_string}`)
+        temp = temp.join(`${this.inline_remove_string} /*`)
+        this.was_edited = true
+        sentence = temp
       }
       // reconstruct the line and replace it in the file
       file[i] = `${spaces}${sentence}`
